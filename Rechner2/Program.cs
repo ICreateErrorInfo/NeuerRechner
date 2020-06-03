@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Rechner2
 {
@@ -39,89 +37,40 @@ namespace Rechner2
                 zahlen.Add(double.Parse(eingabe));
             }
 
-            for(int x = 0; zahlen.Count > 1;x++)
+            foreach (var op in GetOperatoren())
             {
-                if (operatoren.Contains(Operatoren.Potenz))
+                for (int i = 0; i < operatoren.Count; i++)
                 {
-                    for (int i = 0; i < operatoren.Count; i++)
+                    if (operatoren[i] == op)
                     {
-                        if (operatoren[i] == Operatoren.Potenz)
-                        {
-                            switch (operatoren[i])
-                            {
-                                case Operatoren.Potenz:
-                                    zahlen.Insert(i + 1, Rechner.Rechne(operatoren[i], zahlen, i));
-                                    zahlen.RemoveAt(i);
-                                    zahlen.RemoveAt(i + 1);
-                                    operatoren.RemoveAt(i);
-                                    break;
-                            }
-                            break;
-                        }
+                        zahlen.Insert(i + 1, Rechner.Rechne(op, zahlen, i));
+                        zahlen.RemoveAt(i);
+                        zahlen.RemoveAt(i + 1);
+                        operatoren.RemoveAt(i);
+                        i--;
                     }
                 }
-                else
-                {
-                    if (operatoren.Contains(Operatoren.Geteilt) || operatoren.Contains(Operatoren.Mal))
-                    {
-                        for (int i = 0; i < operatoren.Count; i++)
-                        {
-                            if (operatoren[i] == Operatoren.Geteilt || operatoren[i] == Operatoren.Mal)
-                            {
-                                switch (operatoren[i])
-                                {
-                                    case Operatoren.Mal:
-                                        zahlen.Insert(i + 1, Rechner.Rechne(operatoren[i], zahlen, i));
-                                        zahlen.RemoveAt(i);
-                                        zahlen.RemoveAt(i + 1);
-                                        operatoren.RemoveAt(i);
-                                        break;
-                                    case Operatoren.Geteilt:
-                                        zahlen.Insert(i + 1, Rechner.Rechne(operatoren[i], zahlen, i));
-                                        zahlen.RemoveAt(i);
-                                        zahlen.RemoveAt(i + 1);
-                                        operatoren.RemoveAt(i);
-                                        break;
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        int i = 0;
-                        switch (operatoren[i])
-                        {
-                            case Operatoren.Plus:
-                                zahlen.Insert(i + 1, Rechner.Rechne(operatoren[i], zahlen, i));
-                                zahlen.RemoveAt(i);
-                                zahlen.RemoveAt(i + 1);
-                                operatoren.RemoveAt(i);
-                                break;
-                            case Operatoren.Minus:
-                                zahlen.Insert(i + 1, Rechner.Rechne(operatoren[i], zahlen, i));
-                                zahlen.RemoveAt(i);
-                                zahlen.RemoveAt(i + 1);
-                                operatoren.RemoveAt(i);
-                                break;
-                        }
-                    }
-                }  
             }
             Console.WriteLine(zahlen[0] + " ");
-
         }
 
 
         public static bool IsOperator(string eingabe)
         {
-            string[] opperators = new string[] {Operatoren.Plus, Operatoren.Minus, Operatoren.Mal, Operatoren.Geteilt, Operatoren.Potenz, "s="};
-
-            if (opperators.Contains(eingabe))
+            if (GetOperatoren().Contains(eingabe))
             {
                 return true;
             }
             return false;
+        }
+
+        public static IEnumerable<string> GetOperatoren()
+        {
+            yield return Operatoren.Potenz;
+            yield return Operatoren.Mal;
+            yield return Operatoren.Geteilt;
+            yield return Operatoren.Minus;
+            yield return Operatoren.Plus;
         }
 
         public static List<string> Tockenize(string eingabe)
@@ -178,7 +127,7 @@ namespace Rechner2
                         ergebnis /= zahlen[postiton + 1];
                         break;
                     case Operatoren.Potenz:
-                        for(int i = 1; i < zahlen[postiton + 1];i++)
+                        for (int i = 1; i < zahlen[postiton + 1]; i++)
                         {
                             ergebnis *= zahlen[postiton];
                         }
